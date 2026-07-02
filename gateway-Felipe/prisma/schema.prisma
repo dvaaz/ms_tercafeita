@@ -1,0 +1,92 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model access_audits {
+  id        String   @id @db.VarChar(36)
+  userId    String   @db.VarChar(36)
+  action    String   @db.VarChar(100)
+  resource  String   @db.VarChar(150)
+  details   String?  @db.Text
+  ip        String?  @db.VarChar(100)
+  createdAt DateTime @default(now()) @db.DateTime(0)
+  users     users    @relation(fields: [userId], references: [id], map: "fk_access_audits_user")
+
+  @@index([action], map: "idx_access_audits_action")
+  @@index([createdAt], map: "idx_access_audits_createdAt")
+  @@index([userId], map: "idx_access_audits_userId")
+}
+
+model refresh_tokens {
+  id        String   @id @db.VarChar(36)
+  token     String   @unique(map: "uq_refresh_tokens_token") @db.VarChar(500)
+  userId    String   @db.VarChar(36)
+  expiresAt DateTime @db.DateTime(0)
+  createdAt DateTime @default(now()) @db.DateTime(0)
+  users     users    @relation(fields: [userId], references: [id], onDelete: Cascade, map: "fk_refresh_tokens_user")
+
+  @@index([expiresAt], map: "idx_refresh_tokens_expiresAt")
+  @@index([userId], map: "idx_refresh_tokens_userId")
+}
+
+model request_logs {
+  id           String   @id @db.VarChar(36)
+  method       String   @db.VarChar(10)
+  originalUrl  String   @db.VarChar(500)
+  routeType    String?  @db.VarChar(50)
+  targetUrl    String?  @db.VarChar(500)
+  ip           String?  @db.VarChar(100)
+  userAgent    String?  @db.Text
+  statusCode   Int?
+  durationMs   Int?
+  requestBody  String?  @db.LongText
+  responseBody String?  @db.LongText
+  errorMessage String?  @db.Text
+  createdAt    DateTime @default(now()) @db.DateTime(0)
+
+  @@index([createdAt], map: "idx_request_logs_createdAt")
+  @@index([method], map: "idx_request_logs_method")
+  @@index([statusCode], map: "idx_request_logs_statusCode")
+}
+
+model route_configs {
+  id           String   @id @db.VarChar(36)
+  name         String   @unique(map: "uq_route_configs_name") @db.VarChar(120)
+  path         String   @db.VarChar(255)
+  targetUrl    String   @db.VarChar(500)
+  method       String   @db.VarChar(10)
+  requiresAuth Boolean  @default(true)
+  isActive     Int      @default(1)
+  createdAt    DateTime @default(now()) @db.DateTime(0)
+  updatedAt    DateTime @default(now()) @db.DateTime(0)
+
+  @@index([isActive], map: "idx_route_configs_isActive")
+  @@index([method], map: "idx_route_configs_method")
+  @@index([path], map: "idx_route_configs_path")
+}
+
+model users {
+  id             String           @id @db.VarChar(36)
+  name           String           @db.VarChar(150)
+  email          String           @unique(map: "uq_users_email") @db.VarChar(180)
+  password       String           @db.VarChar(255)
+  role           String           @default("ADMIN") @db.VarChar(50)
+  isActive       Int              @default(1)
+  createdAt      DateTime         @default(now()) @db.DateTime(0)
+  updatedAt      DateTime         @default(now()) @db.DateTime(0)
+  access_audits  access_audits[]
+  refresh_tokens refresh_tokens[]
+}
+
+model jwt_secrets {
+  id        String   @id
+  name      String   @unique @db.VarChar(120)
+  secret    String   @db.VarChar(500)
+  isActive  Boolean  @default(true)  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+}

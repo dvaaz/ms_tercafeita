@@ -1,0 +1,47 @@
+.page { min-height: calc(100vh - 64px); padding: 48px 24px; }
+.container { max-width: 1100px; margin: 0 auto; }
+
+.layout { display: grid; grid-template-columns: 280px 1fr; gap: 24px; align-items: start; }
+@media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
+
+/* Sidebar */
+.sidebar { position: sticky; top: 88px; display: flex; flex-direction: column; gap: 12px; }
+
+.profileCard { background: #141414; border: 1px solid #2a2a2a; border-radius: 16px; padding: 28px; text-align: center; }
+.avatar { width: 72px; height: 72px; border-radius: 50%; background: rgba(198, 255, 0, 0.15); border: 2px solid #c6ff00; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 800; color: #c6ff00; margin: 0 auto 16px; }
+.userName { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+.userEmail { font-size: 13px; color: #888; }
+.adminBadge { display: inline-block; margin-top: 10px; background: #c6ff00; color: #000; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.08em; }
+
+.sideNav { background: #141414; border: 1px solid #2a2a2a; border-radius: 12px; overflow: hidden; }
+.navItem { display: flex; align-items: center; gap: 10px; padding: 13px 16px; color: #888; font-size: 14px; font-weight: 500; text-decoration: none; transition: background 0.2s, color 0.2s; border: none; background: none; width: 100%; cursor: pointer; border-bottom: 1px solid #2a2a2a; }
+.navItem:last-child { border-bottom: none; }
+.navItem:hover { background: rgba(255,255,255,0.04); color: #fff; }
+.logoutItem { color: #ef4444; }
+.logoutItem:hover { background: rgba(239, 68, 68, 0.06); color: #ef4444; }
+
+/* Main */
+.main { display: flex; flex-direction: column; gap: 16px; }
+
+.emptyMsg { color: #888; font-size: 14px; padding: 8px 0; }
+
+/* Addresses */
+.addrList { display: flex; flex-direction: column; gap: 10px; }
+.addrItem { display: flex; align-items: flex-start; gap: 12px; background: #1e1e1e; border: 1px solid #2a2a2a; border-radius: 10px; padding: 14px 16px; }
+.addrInfo { flex: 1; }
+.addrLabel { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #c6ff00; margin-bottom: 4px; }
+.addrLine { font-size: 13px; color: #888; line-height: 1.5; }
+.addrActions { display: flex; gap: 6px; flex-shrink: 0; }
+.addrBtn { background: none; border: 1px solid #2a2a2a; color: #888; padding: 6px; border-radius: 6px; cursor: pointer; display: flex; transition: all 0.2s; }
+.addrBtn:hover { border-color: #c6ff00; color: #c6ff00; }
+.addrBtnDanger:hover { border-color: #ef4444; color: #ef4444; }
+
+.addAddrBtn { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px; background: none; border: 1px dashed #2a2a2a; border-radius: 8px; color: #888; font-size: 14px; cursor: pointer; transition: all 0.2s; width: 100%; }
+.addAddrBtn:hover { border-color: #c6ff00; color: #c6ff00; }
+
+.addrForm { background: #1e1e1e; border-radius: 10px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.row { display: flex; gap: 10px; }
+.row > * { flex: 1; }
+
+/* Password */
+.pwForm { display: flex; flex-direction: column; gap: 14px; }

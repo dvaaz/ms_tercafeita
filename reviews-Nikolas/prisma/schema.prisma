@@ -1,0 +1,42 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model avaliacao {
+  id_avaliacao     Int        @id @default(autoincrement())
+  UUID             String     @db.VarChar(36)
+  id_produto       Int
+  nota             Int
+  titulo           String?    @db.VarChar(100)
+  comentario       String?    @db.VarChar(255)
+  data_criacao     DateTime   @db.DateTime(0)
+  data_atualizacao DateTime?  @db.DateTime(0)
+  curtidas         curtida[]
+  respostas        resposta[]
+}
+
+model curtida {
+  id_curtida   Int       @id @default(autoincrement())
+  id_avaliacao Int
+  UUID         String    @db.VarChar(36)
+  avaliacao    avaliacao @relation(fields: [id_avaliacao], references: [id_avaliacao], onUpdate: Restrict, map: "fk_curtida_avaliacao")
+
+  @@unique([id_avaliacao, UUID], map: "uk_curtida_usuario_avaliacao")
+}
+
+model resposta {
+  id_resposta      Int       @id @default(autoincrement())
+  id_avaliacao     Int
+  comentario       String    @db.VarChar(255)
+  data_criacao     DateTime  @db.DateTime(0)
+  data_atualizacao DateTime? @db.DateTime(0)
+  avaliacao        avaliacao @relation(fields: [id_avaliacao], references: [id_avaliacao], onUpdate: Restrict, map: "fk_resposta_avaliacao")
+
+  @@index([id_avaliacao], map: "fk_resposta_avaliacao")
+}

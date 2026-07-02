@@ -1,0 +1,74 @@
+.page { min-height: calc(100vh - 64px); padding: 48px 24px; }
+.container { max-width: 1200px; margin: 0 auto; }
+
+.pageHeader { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 28px; gap: 16px; }
+.pageTitle { font-size: 28px; font-weight: 800; color: #fff; }
+.pageSubtitle { font-size: 14px; color: #888; margin-top: 4px; }
+
+.searchRow { margin-bottom: 20px; }
+.searchInput { width: 100%; max-width: 360px; padding: 11px 16px; background: #141414; border: 1px solid #2a2a2a; border-radius: 8px; color: #fff; font-size: 14px; outline: none; transition: border-color 0.2s; }
+.searchInput:focus { border-color: #c6ff00; }
+.searchInput::placeholder { color: #555; }
+
+.loading { padding: 48px; text-align: center; color: #888; }
+
+.table { background: #141414; border: 1px solid #2a2a2a; border-radius: 12px; overflow: hidden; }
+
+.tableHeader { display: grid; grid-template-columns: 2fr 120px 100px 180px 80px; padding: 12px 20px; font-size: 11px; font-weight: 600; color: #555; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid #2a2a2a; }
+
+.tableRow { display: grid; grid-template-columns: 2fr 120px 100px 180px 80px; padding: 14px 20px; border-bottom: 1px solid #1e1e1e; align-items: center; transition: background 0.15s; }
+.tableRow:last-child { border-bottom: none; }
+.tableRow:hover { background: rgba(255,255,255,0.02); }
+
+.productCell { display: flex; align-items: center; gap: 12px; }
+.productThumb { width: 40px; height: 40px; border-radius: 6px; object-fit: cover; background: #1e1e1e; flex-shrink: 0; }
+.productName { font-size: 14px; font-weight: 600; color: #fff; }
+.productId { font-size: 11px; color: #555; font-family: monospace; margin-top: 2px; }
+
+.categoryBadge { font-size: 12px; padding: 3px 10px; border-radius: 6px; background: #1e1e1e; color: #888; border: 1px solid #2a2a2a; width: fit-content; }
+
+.priceCell { font-size: 15px; font-weight: 700; color: #c6ff00; }
+
+.sizesCell { display: flex; gap: 4px; flex-wrap: wrap; }
+.sizeTag { font-size: 11px; padding: 2px 6px; background: #1e1e1e; border: 1px solid #2a2a2a; border-radius: 4px; color: #888; }
+.sizeTagOut { opacity: 0.4; }
+
+.actions { display: flex; gap: 6px; }
+.actionBtn { background: none; border: 1px solid #2a2a2a; color: #888; padding: 6px; border-radius: 6px; cursor: pointer; display: flex; transition: all 0.2s; }
+.actionBtn:hover { border-color: #c6ff00; color: #c6ff00; }
+.actionBtnDanger:hover { border-color: #ef4444; color: #ef4444; }
+
+.empty { padding: 48px; text-align: center; color: #555; }
+
+/* Modal */
+.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 24px; }
+.modal { background: #141414; border: 1px solid #2a2a2a; border-radius: 16px; width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; }
+
+.modalHeader { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; border-bottom: 1px solid #2a2a2a; }
+.modalTitle { font-size: 18px; font-weight: 700; color: #fff; }
+.closeBtn { background: none; border: none; color: #888; cursor: pointer; display: flex; padding: 4px; transition: color 0.2s; }
+.closeBtn:hover { color: #fff; }
+
+.modalForm { padding: 24px; display: flex; flex-direction: column; gap: 14px; }
+
+.row { display: flex; gap: 12px; }
+.row > * { flex: 1; }
+
+.selectWrapper { display: flex; flex-direction: column; gap: 6px; }
+.selectLabel { font-size: 13px; font-weight: 500; color: #888; text-transform: uppercase; letter-spacing: 0.05em; }
+.select { background: #1e1e1e; border: 1px solid #2a2a2a; border-radius: 8px; color: #fff; padding: 12px 14px; font-size: 14px; outline: none; transition: border-color 0.2s; }
+.select:focus { border-color: #c6ff00; }
+.select option { background: #1e1e1e; }
+
+.sizesRow { display: flex; gap: 10px; }
+.sizeField { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.sizeTag2 { font-size: 12px; font-weight: 700; color: #888; }
+.sizeInput { width: 56px; background: #1e1e1e; border: 1px solid #2a2a2a; border-radius: 6px; color: #fff; padding: 8px; font-size: 14px; text-align: center; outline: none; transition: border-color 0.2s; }
+.sizeInput:focus { border-color: #c6ff00; }
+
+.modalActions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 4px; }
+
+@media (max-width: 768px) {
+  .tableHeader, .tableRow { grid-template-columns: 1fr 80px 60px; }
+  .tableHeader > :nth-child(4), .tableRow > :nth-child(4) { display: none; }
+}

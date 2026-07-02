@@ -1,0 +1,90 @@
+
+
+services:
+  gateway:
+    build:
+      context: ./gateway-Felipe
+      dockerfile: Dockerfile
+    container_name: gateway
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./gateway-Felipe/.env
+    depends_on:
+      - auth
+      - catalog
+      - cart
+      - orders
+      - reviews
+    networks:
+      - ecommerce-network
+
+  auth:
+    build:
+      context: ./auth-Thales
+      dockerfile: Dockerfile
+    container_name: auth
+    restart: unless-stopped
+    ports:
+      - "3040:3040"
+    env_file:
+      - ./auth-Thales/.env
+    networks:
+      - ecommerce-network
+
+  catalog:
+    build:
+      context: ./catalog-Fabio
+      dockerfile: Dockerfile
+    container_name: catalog
+    restart: unless-stopped
+    ports:
+      - "3010:3010"
+    env_file:
+      - ./catalog-Fabio/.env
+    networks:
+      - ecommerce-network
+
+  cart:
+    build:
+      context: ./cart-Parlon
+      dockerfile: Dockerfile
+    container_name: cart
+    restart: unless-stopped
+    ports:
+      - "3030:3030"
+    env_file:
+      - ./cart-Parlon/.env
+    networks:
+      - ecommerce-network
+
+  orders:
+    build:
+      context: ./orders-Darley
+      dockerfile: Dockerfile
+    container_name: orders
+    restart: unless-stopped
+    ports:
+      - "3020:3020"
+    env_file:
+      - ./orders-Darley/.env
+    networks:
+      - ecommerce-network
+
+  reviews:
+    build:
+      context: ./reviews-Nikolas
+      dockerfile: Dockerfile
+    container_name: reviews
+    restart: unless-stopped
+    ports:
+      - "3050:3050"
+    env_file:
+      - ./reviews-Nikolas/.env
+    networks:
+      - ecommerce-network
+
+networks:
+  ecommerce-network:
+    driver: bridge

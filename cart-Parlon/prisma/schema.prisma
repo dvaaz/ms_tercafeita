@@ -1,0 +1,59 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model carrinho {
+  id               String          @id @db.Char(36)
+  usuario_id       String?         @db.Char(36)
+  session_id       String?         @db.VarChar(128)
+  status           String          @default("ATIVO") @db.VarChar(20)
+  data_criacao     DateTime        @default(now()) @db.DateTime(0)
+  data_atualizacao DateTime        @default(now()) @db.DateTime(0)
+  status_carrinho  status_carrinho @relation(fields: [status], references: [valor], onUpdate: Restrict, map: "fk_carr_status")
+  usuario          usuario?        @relation(fields: [usuario_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fk_carr_usuario")
+  item_carrinho    item_carrinho[]
+
+  @@index([status], map: "fk_carr_status")
+  @@index([usuario_id], map: "fk_carr_usuario")
+}
+
+model item_carrinho {
+  id             String   @id @db.Char(36)
+  carrinho_id    String   @db.Char(36)
+  produto_id     String   @db.Char(36)
+  quantidade     Int      @default(1)
+  preco_unitario Decimal  @db.Decimal(12, 2)
+  carrinho       carrinho @relation(fields: [carrinho_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_item_carrinho")
+  produto        produto  @relation(fields: [produto_id], references: [id], onUpdate: Restrict, map: "fk_item_produto")
+
+  @@unique([carrinho_id, produto_id], map: "uq_item")
+  @@index([produto_id], map: "fk_item_produto")
+}
+
+model produto {
+  id                 String          @id @db.Char(36)
+  nome               String          @db.VarChar(255)
+  sku                String          @unique(map: "uq_prod_sku") @db.VarChar(100)
+  preco              Decimal         @db.Decimal(12, 2)
+  estoque_disponivel Int             @default(0)
+  item_carrinho      item_carrinho[]
+}
+
+model status_carrinho {
+  valor    String     @id @db.VarChar(20)
+  carrinho carrinho[]
+}
+
+model usuario {
+  id        String     @id @db.Char(36)
+  nome      String     @db.VarChar(150)
+  email     String     @unique(map: "uq_user_email") @db.VarChar(255)
+  criado_em DateTime   @default(now()) @db.DateTime(0)
+  carrinho  carrinho[]
+}

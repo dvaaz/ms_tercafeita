@@ -1,0 +1,37 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model produto {
+  id_produto             Int        @id @default(autoincrement())
+  nome_produto           String     @db.VarChar(150)
+  preco_produto          Int
+  categoria_id_categoria Int?
+  estoque_id_estoque     Int?
+  url_imagem             String?    @db.VarChar(4000)
+  categoria              categoria? @relation(fields: [categoria_id_categoria], references: [id_categoria], map: "fk_produto_categoria")
+  estoque                estoque?   @relation(fields: [estoque_id_estoque], references: [id_estoque], map: "fk_produto_estoque")
+
+  @@index([categoria_id_categoria], map: "fk_produto_categoria")
+  @@index([estoque_id_estoque], map: "fk_produto_estoque")
+}
+
+model categoria {
+  id_categoria        Int       @id @default(autoincrement())
+  nome_categoria      String    @db.VarChar(100)
+  descricao_categoria String?   @db.VarChar(255)
+  produto             produto[]
+}
+
+model estoque {
+  id_estoque              Int       @id @default(autoincrement())
+  quantidade_estoque      Int
+  disponibilidade_estoque String?   @db.VarChar(10)
+  produto                 produto[]
+}

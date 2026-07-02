@@ -1,0 +1,101 @@
+.page { min-height: calc(100vh - 64px); padding: 48px 24px; }
+.container { max-width: 1100px; margin: 0 auto; }
+.pageTitle { font-size: 28px; font-weight: 800; color: #fff; margin-bottom: 32px; }
+.layout { display: grid; grid-template-columns: 1fr 360px; gap: 24px; align-items: start; }
+@media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
+
+.main { display: flex; flex-direction: column; gap: 20px; }
+
+.section { background: #141414; border: 1px solid #2a2a2a; border-radius: 12px; padding: 24px; }
+
+.sectionHeader { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; color: #c6ff00; }
+.sectionTitle { font-size: 18px; font-weight: 700; color: #fff; }
+
+.addresses { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+
+.addrCard { position: relative; width: 100%; text-align: left; background: #1e1e1e; border: 1px solid #2a2a2a; border-radius: 10px; padding: 14px 16px; cursor: pointer; transition: border-color 0.2s; }
+.addrCard:hover { border-color: #c6ff00; }
+.addrCardSelected { border-color: #c6ff00; background: rgba(198, 255, 0, 0.06); }
+.addrCheck { position: absolute; top: 12px; right: 14px; color: #c6ff00; display: flex; }
+.addrLabel { font-size: 13px; font-weight: 700; color: #c6ff00; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+.addrLine { font-size: 14px; color: #888; line-height: 1.5; }
+
+.addAddrBtn { display: flex; align-items: center; gap: 8px; padding: 10px 16px; background: none; border: 1px dashed #2a2a2a; border-radius: 8px; color: #888; font-size: 14px; cursor: pointer; transition: all 0.2s; width: 100%; justify-content: center; }
+.addAddrBtn:hover { border-color: #c6ff00; color: #c6ff00; }
+
+.addrForm { margin-top: 16px; display: flex; flex-direction: column; gap: 12px; }
+.row { display: flex; gap: 12px; }
+.row > * { flex: 1; }
+
+.sidebar { position: sticky; top: 88px; }
+
+.summaryItems { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+.summaryItem { display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
+.summaryItemName { color: #888; }
+
+.divider { height: 1px; background: #2a2a2a; margin: 12px 0; }
+
+.summaryRow { display: flex; justify-content: space-between; align-items: center; font-size: 14px; color: #888; margin-bottom: 8px; }
+.free { color: #c6ff00; font-weight: 600; }
+.totalRow { font-size: 18px; color: #fff; margin-bottom: 0; }
+.totalValue { color: #c6ff00; font-size: 22px; }
+
+.empty { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: calc(100vh - 64px); gap: 16px; color: #888; font-size: 16px; }
+.backLink { color: #c6ff00; text-decoration: none; font-weight: 600; }
+
+/* Payment */
+.paymentIcon { font-size: 20px; line-height: 1; }
+
+.paymentMethods { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+
+.paymentCard { position: relative; flex: 1; min-width: 120px; display: flex; flex-direction: column; align-items: center; gap: 4px; background: #1e1e1e; border: 1px solid #2a2a2a; border-radius: 10px; padding: 16px 12px; cursor: pointer; transition: border-color 0.2s; text-align: center; }
+.paymentCard:hover { border-color: #c6ff00; }
+.paymentCardSelected { border-color: #c6ff00; background: rgba(198, 255, 0, 0.06); }
+.paymentCheck { position: absolute; top: 8px; right: 10px; color: #c6ff00; display: flex; }
+.paymentMethodIcon { font-size: 22px; margin-bottom: 2px; }
+.paymentMethodLabel { font-size: 13px; font-weight: 700; color: #fff; }
+.paymentMethodDesc { font-size: 11px; color: #666; }
+
+.installments { margin-bottom: 20px; }
+.installmentsLabel { font-size: 13px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; }
+.installmentsGrid { display: flex; gap: 8px; flex-wrap: wrap; }
+.installmentBtn { display: flex; flex-direction: column; align-items: center; gap: 2px; background: #1e1e1e; border: 1px solid #2a2a2a; border-radius: 8px; padding: 10px 14px; cursor: pointer; transition: border-color 0.2s; min-width: 80px; }
+.installmentBtn:hover { border-color: #c6ff00; }
+.installmentBtnSelected { border-color: #c6ff00; background: rgba(198, 255, 0, 0.06); }
+.installmentN { font-size: 15px; font-weight: 700; color: #fff; }
+.installmentV { font-size: 11px; color: #888; }
+.installmentTag { font-size: 10px; color: #c6ff00; font-weight: 600; }
+
+.paymentPreview { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 8px; padding: 12px 16px; }
+.paymentPreviewText { font-size: 14px; color: #888; margin: 0; }
+.paymentPreviewText strong { color: #c6ff00; }
+
+.installmentHint { font-size: 12px; color: #888; text-align: center; margin: 8px 0 0; }
+
+/* Card form */
+.cardForm { display: flex; flex-direction: column; gap: 20px; }
+
+.cardPreview {
+  background: linear-gradient(135deg, #1a2a1a 0%, #0d1f0d 100%);
+  border: 1px solid rgba(198, 255, 0, 0.2);
+  border-radius: 16px;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+  min-height: 160px;
+}
+.cardPreview::before {
+  content: '';
+  position: absolute;
+  top: -40px; right: -40px;
+  width: 160px; height: 160px;
+  border-radius: 50%;
+  background: rgba(198, 255, 0, 0.06);
+}
+.cardChip { font-size: 20px; color: #c6ff00; letter-spacing: -4px; margin-bottom: 20px; opacity: 0.8; }
+.cardNumber { font-size: 18px; font-weight: 700; letter-spacing: 3px; color: #fff; font-family: monospace; margin-bottom: 16px; }
+.cardBottom { display: flex; gap: 32px; }
+.cardFieldLabel { font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(198,255,0,0.6); margin-bottom: 2px; }
+.cardFieldValue { font-size: 13px; font-weight: 600; color: #fff; font-family: monospace; }
+
+.cardFields { display: flex; flex-direction: column; gap: 12px; }

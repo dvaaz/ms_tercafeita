@@ -1,0 +1,34 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["windows", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model usuarios {
+  id            String      @id @default(uuid()) @db.Char(36)
+  nome          String      @db.VarChar(100)
+  email         String      @unique(map: "email") @db.VarChar(150)
+  cpf           String      @unique(map: "cpf") @db.VarChar(11)
+  senha_hash    String      @db.Text
+  role          String      @default("user") @db.VarChar(20)
+  data_criacao  DateTime    @default(now()) @db.Timestamp(0)
+  refresh_token String?     @db.Text
+  enderecos     enderecos[]
+}
+
+model enderecos {
+  id          Int      @id @default(autoincrement())
+  usuario_id  String   @db.Char(36)
+  nome        String   @db.VarChar(50)
+  cep         String   @db.VarChar(8)
+  rua         String   @db.VarChar(150)
+  numero      Int?
+  complemento String?  @db.VarChar(100)
+  usuarios    usuarios @relation(fields: [usuario_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "enderecos_ibfk_1")
+
+  @@index([usuario_id], map: "usuario_id")
+}
