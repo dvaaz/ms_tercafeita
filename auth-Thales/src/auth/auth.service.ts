@@ -7,12 +7,14 @@ import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { CadastroDto } from './dto/cadastro.dto';
 import { AlterarSenhaDto } from './dto/alterar-senha.dto';
+import { ActiveSecretService } from './active-secret.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwt: JwtService,
+    private readonly activeSecretService: ActiveSecretService,
   ) { }
 
   async cadastro(dto: CadastroDto) {
@@ -22,12 +24,11 @@ export class AuthService {
     const byCpf = await this.prisma.usuarios.findUnique({ where: { cpf: dto.cpf } });
     if (byCpf) throw new ConflictException('CPF já cadastrado');
 
-    const email = dto.email.trim().toLowerCase();
     const senha_hash = await bcrypt.hash(dto.senha, 10);
     const nome = dto.sobrenome ? `${dto.nome} ${dto.sobrenome}` : dto.nome;
 
     await this.prisma.usuarios.create({
-      data: { email: email, nome, cpf: dto.cpf, senha_hash, role: 'user' },
+      data: { email: dto.email, nome, cpf: dto.cpf, senha_hash, role: 'user' },
     });
 
     return { message: 'Usuário cadastrado com sucesso' };
@@ -49,32 +50,13 @@ export class AuthService {
   }
 
   async login(dto: LoginDto) {
-    const email = dto.email?.trim().toLowerCase();
-    const senha = dto.senha ?? dto.password;
-
-    if (!email || !senha) {
-      throw new UnauthorizedException('Email e senha são obrigatórios');
-    }
-
-    const user = await this.prisma.usuarios.findUnique({
-      where: { email },
-    });
-
-    if (!user) {
+    const user = await this.prisma.usuarios.findUnique({ where: { email: dto.email } });
+    const senha = dto.senha ?? dto.password ?? '';
+    if (!user || !(await bcrypt.compare(senha, user.senha_hash))) {
       throw new UnauthorizedException('Credenciais inválidas');
     }
 
-    const senhaValida = await bcrypt.compare(senha, user.senha_hash);
-
-    if (!senhaValida) {
-      throw new UnauthorizedException('Credenciais inválidas');
-    }
-
-    const { accessToken, refreshToken } = await this.issueTokens(
-      user.id,
-      user.email,
-      user.role,
-    );
+    const { accessToken, refreshToken } = await this.issueTokens(user.id, user.email, user.role);
 
     await this.prisma.usuarios.update({
       where: { id: user.id },
@@ -94,7 +76,7 @@ export class AuthService {
     let payload: { sub: string; email: string; role: string };
     try {
       payload = this.jwt.verify(refreshToken, {
-        secret: process.env.JWT_REFRESH_SECRET ?? process.env.JWT_SECRET,
+        secret: process.env.JWT_REFRESH_SECRET as string,
       });
     } catch {
       throw new UnauthorizedException('Refresh token inválido ou expirado');
@@ -105,7 +87,7 @@ export class AuthService {
       throw new UnauthorizedException('Refresh token inválido');
     }
 
-    const accessToken = this.signAccessToken(user.id, user.email, user.role);
+    const accessToken = await this.signAccessToken(user.id, user.email, user.role);
     return { token: accessToken, accessToken };
   }
 
@@ -129,15 +111,17 @@ export class AuthService {
   }
 
   private async issueTokens(sub: string, email: string, role: string) {
-    const accessToken = this.signAccessToken(sub, email, role);
+    const accessToken = await this.signAccessToken(sub, email, role);
     const refreshToken = this.signRefreshToken(sub, email, role);
     return { accessToken, refreshToken };
   }
 
-  private signAccessToken(sub: string, email: string, role: string) {
-    const expiresIn = (process.env.JWT_EXPIRES_IN ?? '12h') as StringValue;
+  private async signAccessToken(sub: string, email: string, role: string) {
+    const expiresIn = (process.env.JWT_EXPIRES_IN ?? '15m') as StringValue;
+    const secret = await this.activeSecretService.getActiveSecret();
 
     return this.jwt.sign({ sub, email, role }, {
+      secret,
       expiresIn,
     });
   }
@@ -146,7 +130,7 @@ export class AuthService {
     const expiresIn = (process.env.JWT_REFRESH_EXPIRES_IN ?? '7d') as StringValue;
 
     return this.jwt.sign({ sub, email, role }, {
-      secret: process.env.JWT_REFRESH_SECRET ?? process.env.JWT_SECRET,
+      secret: process.env.JWT_REFRESH_SECRET as string,
       expiresIn,
     });
   }

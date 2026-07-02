@@ -1,5 +1,3 @@
-
-
 services:
   gateway:
     build:
@@ -20,16 +18,20 @@ services:
     networks:
       - ecommerce-network
 
+  # auth/catalog/cart/orders/reviews não publicam porta pro host: o gateway
+  # é o único ponto de entrada externo. Serviços internos falam entre si
+  # pela rede do compose (ex.: http://cart:3030), e cada um confia no
+  # x-user-id/x-user-role que só o gateway injeta depois de validar o token.
   auth:
     build:
       context: ./auth-Thales
       dockerfile: Dockerfile
     container_name: auth
     restart: unless-stopped
-    ports:
-      - "3040:3040"
     env_file:
       - ./auth-Thales/.env
+    environment:
+      GATEWAY_URL: http://gateway:3000
     networks:
       - ecommerce-network
 
@@ -39,8 +41,6 @@ services:
       dockerfile: Dockerfile
     container_name: catalog
     restart: unless-stopped
-    ports:
-      - "3010:3010"
     env_file:
       - ./catalog-Fabio/.env
     networks:
@@ -52,10 +52,14 @@ services:
       dockerfile: Dockerfile
     container_name: cart
     restart: unless-stopped
-    ports:
-      - "3030:3030"
     env_file:
       - ./cart-Parlon/.env
+    environment:
+      # Overrides the .env value (which targets localhost for non-Docker
+      # local dev) so the container reaches catalog via the Compose network.
+      CATALOG_URL: http://catalog:3010
+    depends_on:
+      - catalog
     networks:
       - ecommerce-network
 
@@ -65,10 +69,14 @@ services:
       dockerfile: Dockerfile
     container_name: orders
     restart: unless-stopped
-    ports:
-      - "3020:3020"
     env_file:
       - ./orders-Darley/.env
+    environment:
+      CART_URL: http://cart:3030
+      CATALOG_URL: http://catalog:3010
+    depends_on:
+      - cart
+      - catalog
     networks:
       - ecommerce-network
 
@@ -78,10 +86,25 @@ services:
       dockerfile: Dockerfile
     container_name: reviews
     restart: unless-stopped
-    ports:
-      - "3050:3050"
     env_file:
       - ./reviews-Nikolas/.env
+    environment:
+      AUTH_URL: http://auth:3040
+    depends_on:
+      - auth
+    networks:
+      - ecommerce-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend
+    restart: unless-stopped
+    ports:
+      - "5173:80"
+    depends_on:
+      - gateway
     networks:
       - ecommerce-network
 

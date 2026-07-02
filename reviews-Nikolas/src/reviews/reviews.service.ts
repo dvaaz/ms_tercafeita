@@ -25,7 +25,9 @@ export class ReviewsService {
   private async fetchUser(userId: string): Promise<{ name: string } | null> {
     try {
       const { data } = await firstValueFrom(
-        this.http.get<AuthUser>(`${this.authUrl}/auth/users/${userId}`),
+        this.http.get<AuthUser>(`${this.authUrl}/auth/users/${userId}`, {
+          headers: { 'x-internal-key': process.env.INTERNAL_KEY ?? '' },
+        }),
       );
       return { name: data.nome ?? data.name ?? 'Usuário' };
     } catch {

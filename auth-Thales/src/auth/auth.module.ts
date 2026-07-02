@@ -1,23 +1,24 @@
 import { Module } from '@nestjs/common';
+import { HttpModule } from '@nestjs/axios';
 import { JwtModule } from '@nestjs/jwt';
-import type { StringValue } from 'ms';
 import { PassportModule } from '@nestjs/passport';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.strategy';
-
-const JWT_EXPIRES_IN = (process.env.JWT_EXPIRES_IN ?? '12h') as StringValue;
+import { ActiveSecretService } from './active-secret.service';
 
 @Module({
   imports: [
+    HttpModule,
     PassportModule,
-    JwtModule.register({
-      secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: JWT_EXPIRES_IN },
-    }),
+    // Secret e expiresIn são sempre passados explicitamente em cada
+    // sign()/verify() (ver AuthService e JwtStrategy) — o access token
+    // usa a secret ativa buscada do gateway, o refresh token usa
+    // JWT_REFRESH_SECRET fixo. Este register() só existe pra habilitar o DI.
+    JwtModule.register({}),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy],
+  providers: [AuthService, JwtStrategy, ActiveSecretService],
   exports: [AuthService],
 })
 export class AuthModule { }

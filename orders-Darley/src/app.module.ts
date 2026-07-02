@@ -1,17 +1,9 @@
-import { Module } from "@nestjs/common";
-import { HttpModule } from "@nestjs/axios";
-import { OrdersModule } from "./orders/orders.module";
-import { PrismaModule } from "./prisma/prisma.module";
-import { HealthModule } from "./health/health.module";
-import { CatalogModule } from "./catalog/catalog.module";
+import { Module } from '@nestjs/common';
+import { HttpModule } from '@nestjs/axios';
+import { OrdersModule } from './orders/orders.module';
+import { PrismaModule } from './prisma/prisma.module';
 
 @Module({
-  imports: [
-    PrismaModule,
-    HttpModule,
-    OrdersModule,
-    HealthModule,
-    CatalogModule,
-  ],
+  imports: [PrismaModule, HttpModule, OrdersModule],
 })
 export class AppModule {}

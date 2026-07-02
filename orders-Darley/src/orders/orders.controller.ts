@@ -4,22 +4,12 @@ import {
   Post,
   Param,
   Body,
-  UseGuards,
-  Request,
   Headers,
+  BadRequestException,
 } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 
-interface JwtUser {
-  sub: string;
-  email: string;
-  role: string;
-  name?: string;
-}
-
-@UseGuards(AuthGuard('jwt'))
 @Controller('orders')
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
@@ -27,20 +17,22 @@ export class OrdersController {
   @Post()
   create(
     @Body() dto: CreateOrderDto,
-    @Request() req: { user: JwtUser },
-    @Headers('authorization') authorization: string,
+    @Headers('x-user-id') userId: string,
+    @Headers('x-user-email') userEmail: string,
   ) {
-    const token = authorization?.replace('Bearer ', '') ?? '';
-    return this.ordersService.create(dto, req.user.sub, req.user.name ?? req.user.email, token);
+    if (!userId) throw new BadRequestException('Usuário não autenticado');
+    return this.ordersService.create(dto, userId, userEmail ?? '');
   }
 
   @Get()
-  findAll(@Request() req: { user: JwtUser }) {
-    return this.ordersService.findAll(req.user.sub);
+  findAll(@Headers('x-user-id') userId: string) {
+    if (!userId) throw new BadRequestException('Usuário não autenticado');
+    return this.ordersService.findAll(userId);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string, @Request() req: { user: JwtUser }) {
-    return this.ordersService.findOne(id, req.user.sub);
+  findOne(@Param('id') id: string, @Headers('x-user-id') userId: string) {
+    if (!userId) throw new BadRequestException('Usuário não autenticado');
+    return this.ordersService.findOne(id, userId);
   }
 }

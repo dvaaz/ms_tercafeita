@@ -1,6 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
+import { ActiveSecretService } from './active-secret.service';
 
 interface JwtPayload {
   sub: string;
@@ -10,11 +11,20 @@ interface JwtPayload {
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor() {
+  constructor(activeSecretService: ActiveSecretService) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: process.env.JWT_SECRET ?? (() => { throw new Error('JWT_SECRET não definido'); })(),
+      secretOrKeyProvider: (
+        _request: unknown,
+        _rawJwtToken: unknown,
+        done: (err: unknown, secret?: string) => void,
+      ) => {
+        activeSecretService
+          .getActiveSecret()
+          .then((secret) => done(null, secret))
+          .catch((err: unknown) => done(err));
+      },
     });
   }
 

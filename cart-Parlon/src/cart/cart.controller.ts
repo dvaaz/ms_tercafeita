@@ -1,15 +1,8 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, Headers, UseGuards, Request, HttpCode, HttpStatus, UnauthorizedException} from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
+import { Controller, Get, Post, Put, Delete, Body, Param, Headers, HttpCode, HttpStatus, UnauthorizedException, BadRequestException } from '@nestjs/common';
 import { CartService } from './cart.service';
 import { AddItemDto } from './dto/add-item.dto';
 import { UpdateItemDto } from './dto/update-item.dto';
 import { MergeCartDto } from './dto/merge-cart.dto';
-
-interface JwtUser {
-  sub: string;
-  email: string;
-  role: string;
-}
 
 @Controller('cart')
 export class CartController {
@@ -51,7 +44,7 @@ export class CartController {
   ) {
     return this.cartService.removeItem(id, userId || undefined, sessionId || undefined);
   }
-  
+
   @Delete()
   @HttpCode(HttpStatus.NO_CONTENT)
   clearCart(
@@ -64,9 +57,11 @@ export class CartController {
     return this.cartService.clearCart(userId);
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  // O gateway já exige token válido pra essa rota (requiresAuth=true) e
+  // injeta x-user-id; esta checagem é só uma segunda camada.
   @Post('merge')
-  mergeCart(@Body() dto: MergeCartDto, @Request() req: { user: JwtUser }) {
-    return this.cartService.mergeCart(dto, req.user.sub);
+  mergeCart(@Body() dto: MergeCartDto, @Headers('x-user-id') userId: string) {
+    if (!userId) throw new BadRequestException('Usuário não autenticado');
+    return this.cartService.mergeCart(dto, userId);
   }
 }

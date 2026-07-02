@@ -123,6 +123,20 @@ export default function Checkout() {
     if (card.number.replace(/\s/g, '').length < 16) { toastError('Número do cartão inválido'); return false; }
     if (!card.holder.trim()) { toastError('Informe o nome do titular'); return false; }
     if (card.expiry.length < 5) { toastError('Data de validade inválida'); return false; }
+
+    const [mm, yy] = card.expiry.split('/');
+    const month = parseInt(mm, 10);
+    const year = 2000 + parseInt(yy, 10);
+    if (!month || month < 1 || month > 12) { toastError('Mês de validade inválido'); return false; }
+
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth() + 1;
+    if (year < currentYear || (year === currentYear && month < currentMonth)) {
+      toastError('Cartão vencido');
+      return false;
+    }
+
     if (card.cvv.length < 3) { toastError('CVV inválido'); return false; }
     return true;
   };

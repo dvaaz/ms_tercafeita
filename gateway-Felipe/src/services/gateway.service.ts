@@ -33,98 +33,92 @@ export class GatewayService implements IGatewayService {
       throw new NotFoundException('Rota não encontrada.');
     }
 
+    const targetUrl = this.resolveTargetUrl(route.path, route.targetUrl, path);
+
     let externalUser: any = null;
 
     if (route.requiresAuth) {
       externalUser = await this.validationExternalToken(headers.authorization);
-    }
-
-    const proxyHeaders: Record<string, any> = {
-      'content-type': headers['content-type'] ?? 'application/json',
-      accept: headers.accept ?? 'application/json',
-    };
-
-    if (headers.authorization) {
-      proxyHeaders.authorization = headers.authorization;
-    }
-
-    if (headers['x-session-id']) {
-      proxyHeaders['x-session-id'] = headers['x-session-id'];
-    }
-
-    if (externalUser) {
-      proxyHeaders['x-user-id'] = externalUser.sub;
-      proxyHeaders['x-user-email'] = externalUser.email;
-      proxyHeaders['x-user-role'] = externalUser.role;
+    } else if (headers.authorization) {
+      // Rota não exige login (ex.: carrinho de convidado), mas se o
+      // cliente mandou um token válido mesmo assim, aproveitamos pra
+      // identificar o usuário. Token ausente/inválido não bloqueia a
+      // requisição aqui — só deixa de identificar o usuário.
+      externalUser = await this.tryValidateExternalToken(headers.authorization);
     }
 
     try {
-
-      console.log('REQ GATEWAY:', {
-        method,
-        path,
-        targetUrl: route.targetUrl,
-        body,
-        query,
-        headers,
-      });
-
       const response = await axios({
         method,
-        url: route.targetUrl,
-        headers: proxyHeaders,
+        url: targetUrl,
+        headers: {
+          ...headers,
+          host: undefined,
+
+          ...(externalUser && {
+            'x-user-id': externalUser.sub,
+            'x-user-email': externalUser.email,
+            'x-user-role': externalUser.role,
+          }),
+        },
         data: body,
         params: query,
-        validateStatus: () => true,
-      });
-
-      console.log('RES GATEWAY:', {
-        status: response.status,
-        data: response.data,
       });
 
       await this.requestLogsService.create({
         method,
         originalUrl: path,
         routeType: 'PROXY',
-        targetUrl: route.targetUrl,
+        targetUrl,
         ip: ip ?? null,
         userAgent: headers['user-agent'] ?? null,
         statusCode: response.status,
         durationMs: Date.now() - startedAt,
         requestBody: body ? JSON.stringify(body) : null,
         responseBody: JSON.stringify(response.data),
-        errorMessage: response.status >= 400 ? JSON.stringify(response.data) : null,
+        errorMessage: null,
       });
-
-      if (response.status >= 400) {
-        throw new HttpException(response.data, response.status);
-      }
 
       return response.data;
     } catch (error: any) {
-      const statusCode = error.response?.status ?? error.status ?? 500;
-      const responseBody = error.response?.data ?? error.response ?? null;
-
       await this.requestLogsService.create({
         method,
         originalUrl: path,
         routeType: 'PROXY',
-        targetUrl: route.targetUrl,
+        targetUrl,
         ip: ip ?? null,
         userAgent: headers['user-agent'] ?? null,
-        statusCode,
+        statusCode: error.response?.status ?? 500,
         durationMs: Date.now() - startedAt,
         requestBody: body ? JSON.stringify(body) : null,
-        responseBody: responseBody ? JSON.stringify(responseBody) : null,
+        responseBody: null,
         errorMessage: error.message,
       });
 
-      throw new HttpException(
-        responseBody ?? { message: error.message },
-        statusCode,
-      );
+      if (error.response) {
+        // Erro devolvido pelo serviço interno (ex.: 400, 403, 404) — repassa
+        // status e corpo originais em vez de mascarar tudo como 500.
+        throw new HttpException(error.response.data, error.response.status);
+      }
+
+      throw error;
     }
+  }
+
+  // route.targetUrl vem com os mesmos placeholders (:id, :reviewId...) do
+  // route.path, ex.: "http://cart:3030/cart/items/:id". Aqui trocamos cada
+  // placeholder pelo valor real correspondente no path da requisição.
+  private resolveTargetUrl(routePath: string, targetUrlTemplate: string, actualPath: string): string {
+    const routeSegments = routePath.split('/').filter(Boolean);
+    const actualSegments = actualPath.split('/').filter(Boolean);
+
+    let resolved = targetUrlTemplate;
+    routeSegments.forEach((segment, i) => {
+      if (segment.startsWith(':')) {
+        resolved = resolved.replace(segment, actualSegments[i]);
+      }
+    });
+    return resolved;
   }
 
   private async validationExternalToken(authorization?: string) {
@@ -144,6 +138,14 @@ export class GatewayService implements IGatewayService {
       return jwt.verify(token, activeSecret.secret) as any;
     } catch {
       throw new UnauthorizedException('Token externo inválido.');
+    }
+  }
+
+  private async tryValidateExternalToken(authorization: string) {
+    try {
+      return await this.validationExternalToken(authorization);
+    } catch {
+      return null;
     }
   }
 }

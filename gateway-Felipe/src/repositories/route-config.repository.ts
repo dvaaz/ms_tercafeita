@@ -37,13 +37,22 @@ export class RouteConfigsRepository implements IRouteConfigRepository {
   }
 
   async findByPathAndMethod(path: string, method: string) {
-    return this.prisma.route_configs.findFirst({
-      where: {
-        path,
-        method,
-        isActive: 1,
-      },
+    const candidates = await this.prisma.route_configs.findMany({
+      where: { method, isActive: 1 },
     });
+
+    const requestSegments = path.split('/').filter(Boolean);
+
+    return (
+      candidates.find((route) => {
+        const routeSegments = route.path.split('/').filter(Boolean);
+        if (routeSegments.length !== requestSegments.length) return false;
+
+        return routeSegments.every(
+          (segment, i) => segment.startsWith(':') || segment === requestSegments[i],
+        );
+      }) ?? null
+    );
   }
 
   async update(id: string, data: UpdateRouteDto) {

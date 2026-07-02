@@ -1,13 +1,4 @@
-import {
-  IsObject,
-  ValidateNested,
-  IsString,
-  IsNotEmpty,
-  IsOptional,
-  IsInt,
-  Min,
-  Max,
-} from 'class-validator';
+import { IsObject, ValidateNested, IsString, IsNotEmpty, IsOptional, IsInt, Min, Max, } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class AddressDto {
@@ -44,7 +35,7 @@ export class AddressDto {
 export class PaymentDto {
   @IsInt()
   @Min(2)
-  methodId!: number; // 2=PIX, 3=BOLETO_BANCARIO, 4=CARTAO_CREDITO
+  methodId!: number;
 
   @IsOptional()
   @IsInt()

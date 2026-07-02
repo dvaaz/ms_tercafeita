@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { listProducts } from '../services/product.service';
 import { listProductReviews } from '../services/review.service';
 import { useCart } from '../contexts/CartContext';
+import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../components/shared/Toast/useToast';
 import { formatPrice } from '../mappers';
 import { ChevronLeftIcon, ChevronRightIcon, SearchIcon, CartIcon, TruckIcon, ShieldIcon, RefreshIcon } from '../components/shared/Icons';
@@ -80,6 +81,7 @@ export default function Home() {
   const [ratings, setRatings] = useState<Record<string, RatingSummary>>({});
   const heroTimer = useRef<ReturnType<typeof setInterval> | null>(null);
   const { addItem } = useCart();
+  const { user } = useAuth();
   const { success, error: toastError, warning } = useToast();
   const limit = 12;
 
@@ -169,7 +171,9 @@ export default function Home() {
               >
                 {slide.cta}
               </button>
-              <Link to="/register" className={styles.heroBtnOutline}>Criar Conta</Link>
+              {!user && (
+                <Link to="/register" className={styles.heroBtnOutline}>Criar Conta</Link>
+              )}
             </div>
           </div>
           <div className={styles.heroAccent}>

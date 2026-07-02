@@ -29,7 +29,7 @@ export class ReviewsController {
   ) {
     if (!userId) throw new BadRequestException('Usuário não autenticado');
     return this.reviewsService.remove(id, userId);
-  }  
+  }
 
   @Post(':id/curtida')
   curtir(
@@ -65,9 +65,7 @@ export class ReviewsController {
   removeResposta(
     @Param('reviewId', ParseIntPipe) reviewId: number,
     @Param('respostaId', ParseIntPipe) respostaId: number,
-    @Headers('x-user-id') userId: string,
   ) {
-    if (!userId) throw new BadRequestException('Usuário não autenticado');
     return this.reviewsService.removeResposta(respostaId, reviewId);
   }
 }

@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Param, Body, UseGuards, Request, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Get, Param, Body, Headers, UseGuards, Request, HttpCode, HttpStatus, UnauthorizedException } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
@@ -42,7 +42,11 @@ export class AuthController {
   }
   
   @Get('users/:id')
-  getUser(@Param('id') id: string) {
+  getUser(@Param('id') id: string, @Headers('x-internal-key') internalKey: string) {
+    if (internalKey !== process.env.INTERNAL_KEY) {
+      throw new UnauthorizedException('Chave interna inválida');
+    }
+
     return this.authService.findById(id).then((u) => ({
       id: u.id,
       name: u.nome,

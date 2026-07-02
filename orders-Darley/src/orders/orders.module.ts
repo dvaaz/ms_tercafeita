@@ -1,21 +1,11 @@
-import { Module } from "@nestjs/common";
-import { HttpModule } from "@nestjs/axios";
-import { JwtModule } from "@nestjs/jwt";
-import { PassportModule } from "@nestjs/passport";
-import { OrdersController } from "./orders.controller";
-import { OrdersService } from "./orders.service";
-import { JwtStrategy } from "./jwt.strategy";
+import { Module } from '@nestjs/common';
+import { HttpModule } from '@nestjs/axios';
+import { OrdersController } from './orders.controller';
+import { OrdersService } from './orders.service';
 
 @Module({
-  imports: [
-    HttpModule,
-    PassportModule,
-    JwtModule.register({
-      secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: "7d" },
-    }),
-  ],
+  imports: [HttpModule],
   controllers: [OrdersController],
-  providers: [OrdersService, JwtStrategy],
+  providers: [OrdersService],
 })
 export class OrdersModule {}
